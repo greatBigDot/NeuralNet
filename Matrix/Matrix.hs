@@ -19,13 +19,17 @@ transpose [v]    =
 transpose (v:vs) = 
 -}
 add :: (Num a) => [a] -> [a] -> [a]
-add v1 v2 = dotZip (+) v1 v2
+add v1 v2 = if' (length v1 == length v2)
+              (dotZip (+) v1 v2)
+              (error "Matrix.add: Vectors are of different dimensions.")
 
 sMult :: (Num a) => a -> [a] -> [a]
 sMult x ys = map (*x) ys
 
 dotProd :: (Num a) => [a] -> [a] -> a
-dotProd v1 v2 = sum (dotZip (*) v1 v2)
+dotProd v1 v2 = if' (length v1 == length v2)
+                  (sum (dotZip (*) v1 v2))
+                  (error "Matrix.dotProd: Vectors are of different dimensions.")
 
 toMatrix :: [a] -> [[a]]
 toMatrix v = [v]
@@ -55,3 +59,4 @@ coMatrix :: (Int, Int) -> [[(Int,Int)]]
 coMatrix (0,_) = []
 coMatrix (_,0) = []
 coMatrix (x,y) = (coMatrix ((x-1),y)) ++ [map (\b -> (x-1,b)) [0..(y-1)]]
+
