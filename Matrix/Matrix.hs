@@ -42,7 +42,7 @@ column mat n = map (\v -> v!!n) mat
 --crossProd :: (Num a) => [a] -> [a] -> [a]
 
 mult :: (Num a) => [[a]] -> [[a]] -> [[a]]
-mult m1 m2 = funcToMat (\(x,y) -> dotProd (row m1 x) (column m2 y)) (length m1,length $ head m1)
+mult m1 m2 = funcToMat (\(x,y) -> dotProd (row m1 x) (column m2 y)) (length m1,length $ head m2)
 
 matToFunc :: [[a]] -> (Int,Int) -> a
 matToFunc m (x,y) = m !! x !! y
