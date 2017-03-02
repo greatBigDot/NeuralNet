@@ -1,2 +1,2 @@
 # NeuralNet
-An attempt to create a rudimentary neural network.
+This is an attempt to create a rudimentary neural network.
