@@ -1,9 +1,5 @@
 module Matrix where
 
-if' :: Bool -> a -> a -> a
-if' True  x _ = x
-if' False _ y = y
-
 --zipWith, except the lists can't be of different lengths.
 dotZip :: (a -> b -> c) -> [a] -> [b] -> [c]
 dotZip _ [] []         = []
@@ -11,15 +7,22 @@ dotZip _ [] _          = error "Matrix.dotZip: Lists are of different lengths."
 dotZip _ _ []          = error "Matrix.dotZip: Lists are of different lengths."
 dotZip f (x:xs) (y:ys) = (f x y):(dotZip f xs ys)
 
---concat
-{-
-transpose :: [[a]] -> [[a]]
-transpose [[]]   = [[]]
-transpose [v]    =
-transpose (v:vs) = 
--}
+--Matrix functions:
+height :: [[a]] -> Int
+height = length
 
---Since all is lazy, this returns true for []. I may want to change that later, but currently coMatrix treats [] is a matrix.
+width :: [[a]] -> Int
+width = length . head
+
+dim :: [[a]] -> (Int, Int)
+dim mat = (height mat, width mat)
+
+--concat
+
+transpose :: [[a]] -> [[a]]
+transpose mat = map (flip column mat) [0..(width mat)-1]
+
+--Since all is lazy, this returns true for []. I may want to change that later, but currently coMatrix treats [] is a matrix. Hopefully this won't be a source of bugs...
 isMatrix :: (Num a) => [[a]] -> Bool
 isMatrix mat = (all (\v -> length v == len) mat)
   where len = length . head $ mat
@@ -49,7 +52,7 @@ row n mat = if 0 <= n && n < length mat
               else error "Matrix.row: Index is out of range."
 
 column :: Int -> [[a]] -> [a]
-column n mat = if ((0 <= n) && (n < (length(head(mat)))))
+column n mat = if 0 <= n && n < (length . head $ mat)
                  then map (\v -> v!!n) mat
                  else error "Matrix.column: Index is out of range."
 
