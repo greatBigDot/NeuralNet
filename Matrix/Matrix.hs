@@ -18,18 +18,23 @@ transpose [[]]   = [[]]
 transpose [v]    =
 transpose (v:vs) = 
 -}
+
+isMatrix :: (Num a) => [[a]] -> Bool
+isMatrix mat = (all (\v -> length v == len) mat) && (not . null $ mat)
+  where len = if not . null $ mat then length . head $ mat else 0
+
 add :: (Num a) => [a] -> [a] -> [a]
-add v1 v2 = if' (length v1 == length v2)
-              (dotZip (+) v1 v2)
-              (error "Matrix.add: Vectors are of different dimensions.")
+add v1 v2 = if length v1 == length v2
+              then dotZip (+) v1 v2
+              else error "Matrix.add: Vectors are of different dimensions."
 
 sMult :: (Num a) => a -> [a] -> [a]
 sMult x ys = map (*x) ys
 
 dotProd :: (Num a) => [a] -> [a] -> a
-dotProd v1 v2 = if' (length v1 == length v2)
-                  (sum (dotZip (*) v1 v2))
-                  (error "Matrix.dotProd: Vectors are of different dimensions.")
+dotProd v1 v2 = if length v1 == length v2
+                  then sum (dotZip (*) v1 v2)
+                  else error "Matrix.dotProd: Vectors are of different dimensions."
 
 toMatrix :: [a] -> [[a]]
 toMatrix v = [v]
@@ -37,16 +42,20 @@ toMatrix v = [v]
 toMatrix' :: [a] -> [[a]]
 toMatrix' v = map (:[]) v
 
-row :: [[a]] -> Int -> [a]
-row mat = (mat!!)
+row :: Int -> [[a]] -> [a]
+row n mat = if 0 <= n && n < length mat
+              then mat!!n
+              else error "Matrix.row: Index is out of range."
 
-column :: [[a]] -> Int -> [a]
-column mat n = map (\v -> v!!n) mat
+column :: Int -> [[a]] -> [a]
+column n mat = if ((0 <= n) && (n < (length(head(mat)))))
+                 then map (\v -> v!!n) mat
+                 else error "Matrix.column: Index is out of range."
 
 --crossProd :: (Num a) => [a] -> [a] -> [a]
 
 mult :: (Num a) => [[a]] -> [[a]] -> [[a]]
-mult m1 m2 = funcToMat (\(x,y) -> dotProd (row m1 x) (column m2 y)) (length m1,length $ head m2)
+mult m1 m2 = funcToMat (\(x,y) -> dotProd (row x m1) (column y m2)) (length m1,length $ head m2)
 
 matToFunc :: [[a]] -> (Int,Int) -> a
 matToFunc m (x,y) = m !! x !! y
