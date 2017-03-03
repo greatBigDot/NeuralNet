@@ -55,7 +55,6 @@ column n mat = if ((0 <= n) && (n < (length(head(mat)))))
 --crossProd :: (Num a) => [a] -> [a] -> [a]
 
 mult :: (Num a) => [[a]] -> [[a]] -> [[a]]
-<<<<<<< HEAD
 mult m1 m2 = if (length . head $ m1) == length m2
                then funcToMat (\(x,y) -> dotProd (row x m1) (column y m2)) (length m1,length $ head m2)
                else error "Matrix.mult: The width of matrix one is not equal to the height of matrix two."
