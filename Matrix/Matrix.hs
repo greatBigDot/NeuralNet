@@ -19,9 +19,10 @@ transpose [v]    =
 transpose (v:vs) = 
 -}
 
+--Since all is lazy, this returns true for []. I may want to change that later, but currently coMatrix treats [] is a matrix.
 isMatrix :: (Num a) => [[a]] -> Bool
 isMatrix mat = (all (\v -> length v == len) mat)
-  where len = if not . null $ mat then length . head $ mat else (-1)
+  where len = length . head $ mat
 
 add :: (Num a) => [a] -> [a] -> [a]
 add v1 v2 = if length v1 == length v2
