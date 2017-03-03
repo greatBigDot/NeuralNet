@@ -21,7 +21,7 @@ transpose (v:vs) =
 
 isMatrix :: (Num a) => [[a]] -> Bool
 isMatrix mat = (all (\v -> length v == len) mat) && (not . null $ mat)
-  where len = if not . null $ mat then length . head $ mat else (-1)
+  where len = if not . null $ mat then length . head $ mat else 0
 
 add :: (Num a) => [a] -> [a] -> [a]
 add v1 v2 = if length v1 == length v2
@@ -55,9 +55,13 @@ column n mat = if ((0 <= n) && (n < (length(head(mat)))))
 --crossProd :: (Num a) => [a] -> [a] -> [a]
 
 mult :: (Num a) => [[a]] -> [[a]] -> [[a]]
+<<<<<<< HEAD
 mult m1 m2 = if (length . head $ m1) == length m2
                then funcToMat (\(x,y) -> dotProd (row x m1) (column y m2)) (length m1,length $ head m2)
                else error "Matrix.mult: The width of matrix one is not equal to the height of matrix two."
+=======
+mult m1 m2 = funcToMat (\(x,y) -> dotProd (row x m1) (column y m2)) (length m1,length $ head m2)
+>>>>>>> b0e3472647e2c6e1839da576466097906b77f05e
 
 matToFunc :: [[a]] -> (Int,Int) -> a
 matToFunc m (x,y) = m !! x !! y
