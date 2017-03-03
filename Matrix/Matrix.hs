@@ -20,8 +20,8 @@ transpose (v:vs) =
 -}
 
 isMatrix :: (Num a) => [[a]] -> Bool
-isMatrix mat = (all (\v -> length v == len) mat) && (not . null $ mat)
-  where len = if not . null $ mat then length . head $ mat else 0
+isMatrix mat = (all (\v -> length v == len) mat)
+  where len = if not . null $ mat then length . head $ mat else (-1)
 
 add :: (Num a) => [a] -> [a] -> [a]
 add v1 v2 = if length v1 == length v2
