@@ -52,6 +52,6 @@ funcToMat f (x,y) = map (map f) (coMatrix (x,y))
 
 --Produces a matrix that contains the value (x,y) at the coordinates (x,y). Length is x, height is y.
 coMatrix :: (Int, Int) -> [[(Int,Int)]]
-coMatrix (0,_) = [[]]
-coMatrix (_,0) = [[]]
-coMatrix (x,y) = (coMatrix (x-1) y) ++ (map (\b -> (x-1,b)) [0..(y-1)])
+coMatrix (0,_) = []
+coMatrix (_,0) = []
+coMatrix (x,y) = (coMatrix ((x-1),y)) ++ [map (\b -> (x-1,b)) [0..(y-1)]]
