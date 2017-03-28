@@ -1,0 +1,5 @@
+e :: (Floating a) => a
+e = exp 1
+
+activate :: (Num a) => a -> a -> a
+activate a = 

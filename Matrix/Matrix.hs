@@ -74,3 +74,7 @@ coMatrix :: (Int, Int) -> [[(Int,Int)]]
 coMatrix (0,_) = []
 coMatrix (_,0) = []
 coMatrix (x,y) = (coMatrix ((x-1),y)) ++ [map (\b -> (x-1,b)) [0..(y-1)]]
+
+--determinant :: (Num a) => [[a]] -> a
+elemMult :: (Num a) => [[a]] -> [[a]] -> [[a]]
+elemMult = dotZip (dotZip (*))
