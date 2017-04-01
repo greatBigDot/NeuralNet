@@ -7,6 +7,8 @@ dotZip _ [] _          = error "Matrix.dotZip: Lists are of different lengths."
 dotZip _ _ []          = error "Matrix.dotZip: Lists are of different lengths."
 dotZip f (x:xs) (y:ys) = (f x y):(dotZip f xs ys)
 
+(.$.) = flip dotZip
+
 --Matrix functions:
 height :: [[a]] -> Int
 height = length
@@ -78,3 +80,6 @@ coMatrix (x,y) = (coMatrix ((x-1),y)) ++ [map (\b -> (x-1,b)) [0..(y-1)]]
 --determinant :: (Num a) => [[a]] -> a
 elemMult :: (Num a) => [[a]] -> [[a]] -> [[a]]
 elemMult = dotZip (dotZip (*))
+
+distribute :: (Num a) => (a -> a) -> [[a]] -> [[a]]
+distribute f = map (map f)
