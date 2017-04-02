@@ -82,4 +82,4 @@ elemMult :: (Num a) => [[a]] -> [[a]] -> [[a]]
 elemMult = dotZip (dotZip (*))
 
 distribute :: (Num a) => (a -> a) -> [[a]] -> [[a]]
-distribute f = map (map f)
+distribute = map . map
