@@ -89,7 +89,7 @@ co3DMatrix (l,i,j) = co3DMatrix (l-1,i,j) ++ [map (map  (\(b,c) -> (l-1,b,c))) (
 --map (map {:: Int -> Int -> (Int, Int, Int)}) {:: [[(Int,Int)]]}
 --map {:: } {:: [[(Int,Int)]]}
 
---Produces a matrix that contains the value (x,y) at the coordinates (x,y). Length is x, height is y.
+--Produces a matrix that contains the value (x,y) at the coordinates (x,y). The input specifies the matrix's dimensions.
 coMatrix :: (Int, Int) -> Matrix (Int,Int)
 coMatrix (0,_) = []
 coMatrix (_,0) = []

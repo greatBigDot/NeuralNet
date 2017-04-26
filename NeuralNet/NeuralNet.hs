@@ -63,7 +63,7 @@ allNeurons dat net = map (neurons dat net) [0..numLayers net - 1]
 {-Foundational Functionality-}
 
 --Measures how accurate the neural network is by comparing its output to a set of training data; other loss functions are possible, but this, a supervised learning paradigm, is easiest.
-trainLoss :: Data -> (Net -> Double)
+trainLoss :: Data -> Net -> Double
 trainLoss dat net =
   let targetOut = snd dat
       netOut = neurons dat net (numLayers net - 1)
@@ -108,8 +108,73 @@ grad dat net (l,i,j) = sum $ for [0..numInputs dat - 1] (\k -> (netOut |-| targe
   where targetOut = snd dat
         netOut    = neurons dat net (numLayers net - 1)
 
-gradient :: Data -> Net -> Int -> Matrix
-gradient dat net layer = funcToMat (\(i,j) -> grad dat net (layer,i,j)) (numNeurons net layer, numNeurons net (layer+1))
+gradient :: Data -> Net -> [Matrix]
+gradient dat net = toUnit $
+  (lift1'
+    (grad dat net)
+    (cntMap
+      (\d -> (coMatrix d))
+      (map
+        (dim . weights net)
+        [0..numLayers net - 2]
+      )
+    )
+  )
+
+
+
+--to unit vector
+toUnit :: [Matrix] -> [Matrix]
+toUnit v = (lift1') (/ scale) v
+  where scale = len . concat . concat $ v
+
+--Descends down the gradient, given a step size.
+stepDescend :: Double -> Data -> Net -> Double
+stepDescend step dat net = trainLoss dat $ Net (wts net ||-|| lift1' (*step) (gradient dat net)) (act net)
+
+--The Armijo-Goldstein condition.
+armijo :: Double -> Data -> Net -> Bool
+armijo step dat net = (stepDescend step dat net - trainLoss dat net) / step <= _k * (len . concat . concat $ gradient dat net)
+
+updateStep :: Double -> Data -> Net -> Double
+updateStep step dat net = if armijo step dat net then step else updateStep (step / phi) dat net
+
+_k, phi :: Double
+_k = 0.25; phi = (1+sqrt 5)/2
+
+--Starts at a step length of 1, then shrinks it until Armijo-Goldstein is satisfied.
+findStep :: Data -> Net -> Double
+findStep = updateStep 1
+
+
+
+descend :: Data -> Net -> Net
+descend dat net = Net (wts net ||-|| lift1' (*step) (gradient dat net)) (act net)
+  where step = findStep dat net
+
+learn :: Data -> Net -> Int -> Net
+learn dat net 0 = net
+learn dat net n = descend dat (learn dat net (n-1))
+
+lift1' :: (a -> b) -> [[[a]]] -> [[[b]]]
+lift1' = map . lift1
+
+--map, except (1) its domain is restricted to only certain kinds of functions; and (2) instead of returing a 3D matrix of pairs, it returns a 3D matrix of triples, where the new first element is a counter (hence the name).
+cntMap :: ((Int,Int) -> [[(Int,Int)]]) -> [(Int,Int)] -> [[[(Int,Int,Int)]]]
+cntMap f ps = cMap 0 f ps
+
+--subroutine for countMap
+cMap :: Int -> ((Int, Int) -> [[(Int,Int)]]) -> [(Int,Int)] -> [[[(Int,Int,Int)]]]
+cMap n f []     = []
+cMap n f (p:ps) = lift1 (n<:) (f p) : cMap (n+1) f ps
+
+tCon :: a -> (b,c) -> (a,b,c)
+tCon x (y,z) = (x,y,z)
+
+(<:) :: a -> (b,c) -> (a,b,c)
+(<:) = tCon
+
+infix 5 <:
 
 for :: [a] -> (a -> b) -> [b]
 for = flip map
@@ -123,8 +188,8 @@ matrify = lift1
 --lift2 = (<^>) . (<^>)
 
 --This just turns some binary function into a binary function over applicative types.
-(<^>) :: (Applicative t) => (a -> b -> c) -> (t a -> t b -> t c)
-(<^>) f = (<*>) . (f <$>)
+--(<^>) :: (Applicative t) => (a -> b -> c) -> (t a -> t b -> t c)
+--(<^>) f = (<*>) . (f <$>)
 
 
 derivative :: Double -> (Double -> Double) -> (Double -> Double)
@@ -145,19 +210,5 @@ stdDel = 1.0e-12
 (|-|) :: Matrix -> Matrix -> Matrix
 (|-|) = dotZip . dotZip $ (-)
 
-
-step :: Double
-step = 0.01
-
-
---Given a data set and a neural network, this creates a new neural network that (hopefully) preforms better. Calling this recursively should (hopefully) optimize the neural net.
-learn :: Data -> Net -> Net
-learn dat net =
-  let newWeights l = lift1 (*(-step)) (gradient dat net l) |+| weights net l
-      newWts       = map newWeights [0..numLayers net - 2]
-  in Net newWts (act net)
-
---Applies the learning function to the starting net with the given data set the specified number of times.
-optimize :: Data -> Net -> Int -> Net
-optimize _   net 0 = net
-optimize dat net n = learn dat (optimize dat net (n-1))
+(||-||) :: [Matrix] -> [Matrix] -> [Matrix]
+(||-||) = dotZip (|-|)
