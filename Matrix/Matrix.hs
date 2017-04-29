@@ -48,6 +48,9 @@ dotProd v1 v2 = if length v1 == length v2
 len :: (Floating a) => Vector a -> a
 len = sqrt . sum . map (^2)
 
+matLen :: (Floating a) => Matrix a -> a
+matLen = len . concat
+
 toMatrix :: Vector a -> Matrix a
 toMatrix v = [v]
 
@@ -63,6 +66,9 @@ column :: Int -> Matrix a -> Vector a
 column n mat = if 0 <= n && n < (length . head $ mat)
                  then map (\v -> v!!n) mat
                  else error "Matrix.column: Index is out of range."
+
+mElem :: Int -> Int -> Matrix a -> a
+mElem x y m = m!!x!!y
 
 --crossProd :: (Num a) => Vector a -> Vector a -> Vector a
 
